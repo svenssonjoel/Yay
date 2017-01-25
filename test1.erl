@@ -8,6 +8,9 @@
 %  erl -pa ebin -eval "application:start(myapp)"
 %   run in background: -noshell -detached  
 
+% erl -name server@127.0.0.1
+% erl -name client@128.0.0.1  
+
 start() ->
     Wx = wx:new(),
     Frame = wxFrame:new(Wx, -1,  "Yay!"),
