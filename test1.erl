@@ -18,7 +18,12 @@ start() ->
     wxFrame:createStatusBar(Frame),
     wxFrame:setStatusText(Frame,"Initializing.."),
     wxFrame:connect(Frame, close_window),
+    
 
+    MainSizer = wxBoxSizer:new(?wxVERTICAL),
+    Sizer = wxStaticBoxSizer:new(?wxVERTICAL, Frame, 
+				 [{label, "wxSizer"}]),
+    
     % Notebook = wxNotebook:new(Frame, 1, [{style, ?wxBK_DEFAULT}]),
     
     %ListCtrl = wxListCtrl:new(Notebook, [{style, ?wxLC_LIST}]),
@@ -29,6 +34,11 @@ start() ->
 
     wxListCtrl:connect(ListCtrl, command_list_item_selected, []),
     
+    % TODO: Figure out how to work with sizers... 
+    wxSizer:add(Sizer, ListCtrl, [{flag, ?wxEXPAND}]),
+    wxSizer:add(MainSizer, Sizer, [{flag, ?wxEXPAND}, {proportion, 1}]),
+    wxFrame:setSizer(Frame,MainSizer), 
+
     % TODO: I have no idea what a sizer is.. read wx manual. 
     %MainSizer = wxStaticBoxSizer:new(?wxVERTICAL, Frame,
     %				     [{label, "wxListCtrl"}]),
@@ -103,10 +113,16 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
             % trick. More wx knowledge is needed.
             % Nothing gets drawn in the frame until after a resize action 
             % has been performed on the window. 
-	    wxWindow:layout(ListCtrl),
+	   
+            %wxWindow:layout(ListCtrl),
 	    %vxWindow:refresh(ListCtrl), 
+
+
+	    % Now, after adding sizers, these "getParent" calls 
+	    % will return the sizer ? 
 	    wxWindow:layout(wxWindow:getParent(ListCtrl)),
 	    wxWindow:refresh(wxWindow:getParent(ListCtrl)),
+	    wxWindow:update(wxWindow:getParent(ListCtrl)),
 	    loop(Frame, {[{Pid,NewTime} | NewState],NewTime, NewPingTimeStamp},ListCtrl);
 
 	% A client responds to a ping (refresh the client status) 
