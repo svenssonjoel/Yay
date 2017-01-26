@@ -103,8 +103,11 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	    ItemId = wxListCtrl:getItemCount(ListCtrl),
 	    ListItem = wxListItem:new(),
 	    wxListItem:setText(ListItem, "Client" ++ pid_to_list(Pid)),
-	    % wxListItem:setData(ListItem,3213213), % alternative way to id the item. 
-	                                            % So that different label and id can be used. 
+	    % wxListItem:setData(ListItem,3213213), 
+			  % This is an alternative 
+			  % way to id the item. 
+                          % So that different label 
+	                  % and id can be used. 
 	    wxListItem:setId(ListItem, ItemId+1), 
 	    wxListCtrl:insertItem(ListCtrl,ListItem),
 
@@ -156,7 +159,8 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 
 
 % TODO: Put client in a different module. (Can I do that?)
-%       The client has no dependency on wx and will run on platform where wx does not exist. (Does this matter?) 
+%       The client has no dependency on wx and will run on platform 
+%       where wx does not exist. (Does this matter?) 
 
 client() ->
     [Name, Server, _ ] = readlines("config.txt"),
