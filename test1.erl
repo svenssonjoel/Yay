@@ -97,6 +97,12 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	                                            % So that different label and id can be used. 
 	    wxListItem:setId(ListItem, ItemId+1), 
 	    wxListCtrl:insertItem(ListCtrl,ListItem),
+
+	    % Trying to make the window refresh itself after 
+	    % adding a list item. But this does not seem to do the 
+            % trick. More wx knowledge is needed.
+            % Nothing gets drawn in the frame until after a resize action 
+            % has been performed on the window. 
 	    wxWindow:layout(ListCtrl),
 	    %vxWindow:refresh(ListCtrl), 
 	    wxWindow:layout(wxWindow:getParent(ListCtrl)),
