@@ -110,9 +110,11 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	    ok;
 
 	% A new client says hello. add it to datastructure
-	{hello, Pid} -> 
+	{hello, Pid, Nom} -> 
 	    Pid ! "hello there", % nonsense response for now
-
+	    
+	    io:format("~s says hello ~n", [Nom]),
+	    
 	    ItemId = wxListCtrl:getItemCount(ListCtrl),
 	    ListItem = wxListItem:new(),
 	    wxListItem:setText(ListItem, "Client" ++ pid_to_list(Pid)),
@@ -124,21 +126,10 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	    wxListItem:setId(ListItem, ItemId+1), 
 	    wxListCtrl:insertItem(ListCtrl,ListItem),
 
-	    % Trying to make the window refresh itself after 
-	    % adding a list item. But this does not seem to do the 
-            % trick. More wx knowledge is needed.
-            % Nothing gets drawn in the frame until after a resize action 
-            % has been performed on the window. 
-	   
-            %wxWindow:layout(ListCtrl),
-	    %vxWindow:refresh(ListCtrl), 
-
-
-	    % Now, after adding sizers, these "getParent" calls 
-	    % will return the sizer ? 
+	    
 	    wxWindow:layout(wxWindow:getParent(ListCtrl)),
-	    wxWindow:refresh(wxWindow:getParent(ListCtrl)),
-	    wxWindow:update(wxWindow:getParent(ListCtrl)),
+	    %wxWindow:refresh(wxWindow:getParent(ListCtrl)),
+	    %wxWindow:update(wxWindow:getParent(ListCtrl)),
 	    loop(Frame, {[{Pid,NewTime} | NewState],NewTime, NewPingTimeStamp},ListCtrl);
 
 	% A client responds to a ping (refresh the client status) 
@@ -182,8 +173,8 @@ client() ->
     % binary_to_existing_atom did not work here. 
     Serv = erlang:binary_to_atom(Server,utf8), % the server id atom 
     Nom  = erlang:binary_to_list(Name),
-    {server, Serv} ! {hello, self()},
-    {server, Serv} ! {status, Nom},
+    {server, Serv} ! {hello, self(), Nom},
+    % {server, Serv} ! {status, Nom},
     client_loop(). % enter client loop 
     
     
