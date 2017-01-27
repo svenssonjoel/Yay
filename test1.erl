@@ -21,8 +21,8 @@ start() ->
     
 
     MainSizer = wxBoxSizer:new(?wxVERTICAL),
-    Sizer = wxStaticBoxSizer:new(?wxVERTICAL, Frame, 
-				 [{label, "wxSizer"}]),
+    %Sizer = wxDynamicBoxSizer:new(?wxVERTICAL, Frame, 
+    %			   [{label, "wxSizer"}]),
     
     % Notebook = wxNotebook:new(Frame, 1, [{style, ?wxBK_DEFAULT}]),
     
@@ -35,8 +35,9 @@ start() ->
     wxListCtrl:connect(ListCtrl, command_list_item_selected, []),
     
     % TODO: Figure out how to work with sizers... 
-    wxSizer:add(Sizer, ListCtrl, [{flag, ?wxEXPAND}]),
-    wxSizer:add(MainSizer, Sizer, [{flag, ?wxEXPAND}, {proportion, 1}]),
+    %wxSizer:add(Sizer, ListCtrl, [{flag, ?wxEXPAND}]),
+    %wxSizer:add(MainSizer, Sizer, [{flag, ?wxEXPAND}, {proportion, 1}]),
+    wxSizer:add(MainSizer, ListCtrl, [{flag, ?wxEXPAND}, {proportion, 1}]),
     wxFrame:setSizer(Frame,MainSizer), 
 
     % TODO: I have no idea what a sizer is.. read wx manual. 
