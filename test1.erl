@@ -59,6 +59,7 @@ start() ->
 
 % TODO: how to share a datastructure between two processes ?
 %       To break out a ping process that checks if clients are alive. 
+%       Answer: Mnesia ?? 
 % TODO: The state carried in the loop should be a record. 
 
 loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
@@ -78,9 +79,20 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	    true -> PingTimeStamp
 	end,
 
-    % clean out clients that seem to have died 
-    NewState = lists:filter(fun({_,Time}) -> NewTime - Time < 5 * 1000000000 end, State), 
-    Dead = lists:filter(fun({_,Time}) -> NewTime - Time >= 5 * 1000000000 end, State), 
+    % Clean out clients that seem to have died.
+    % TODO: base this on a status field for each of the clients in 
+    %       the datastructre.
+    %       Possible statuses: running, unresponsive, dead 
+    %       If a certain time passed without the client responding to a ping 
+    %       a running client should be marked unresponsive. 
+    %       After yet more time it should be marked dead. 
+    %       dead clients should be removed. 
+    NewState = lists:filter(fun({_,Time}) -> 
+				    NewTime - Time < 5 * 1000000000 
+			    end, State), 
+    Dead = lists:filter(fun({_,Time}) -> 
+				NewTime - Time >= 5 * 1000000000 
+			end, State), 
    
     % Woa! the syntax! 
     lists:map(fun({Pid,_}) -> 
