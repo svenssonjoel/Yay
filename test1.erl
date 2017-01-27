@@ -50,7 +50,7 @@ start() ->
     %T = self(), % Get the process id 
     %spawn(fun() -> messages(T) end), 
 
-    loop(Frame, {[],erlang:monotonic_time(),erlang:monotonic_time()}, ListCtrl).
+    loop(Frame, {[],erlang:monotonic_time()}, ListCtrl).
 
 %messages(T) -> 
 %    T ! hello, 
@@ -62,18 +62,17 @@ start() ->
 %       Answer: Mnesia ?? 
 % TODO: The state carried in the loop should be a record. 
 
-loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
+
+loop(Frame, {State,PingTimeStamp}, ListCtrl) ->
     io:format("~p ~n", [State]),
     NewTime = erlang:monotonic_time(),
     % io:format("~p ~n", [NewTime - TimeStamp]), 
 
-    % Go through the state and send a ping to each of the connected clients. 
-    % should be a map like construct.
-    
-    % io:format("~p ~n", [NewTime - PingTimeStamp]), 
+    % If enough time passed,
+    % go through the state and send a ping to each of the connected clients.
     NewPingTimeStamp = 
 	if 
-	    (NewTime - PingTimeStamp) > (2 * 1000000000) ->  
+	    (NewTime - PingTimeStamp) > 2 * 1000000000  ->  
 		lists:map(fun({Pid,_}) -> Pid ! {ping, self()} end, State),
 		NewTime;
 	    true -> PingTimeStamp
@@ -88,10 +87,10 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
     %       After yet more time it should be marked dead. 
     %       dead clients should be removed. 
     NewState = lists:filter(fun({_,Time}) -> 
-				    NewTime - Time < 5 * 1000000000 
+				    NewTime - Time < 5 * 1000000000
 			    end, State), 
     Dead = lists:filter(fun({_,Time}) -> 
-				NewTime - Time >= 5 * 1000000000 
+				NewTime - Time >= 5 * 1000000000
 			end, State), 
    
     % Woa! the syntax! 
@@ -130,7 +129,7 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 	    wxWindow:layout(wxWindow:getParent(ListCtrl)),
 	    %wxWindow:refresh(wxWindow:getParent(ListCtrl)),
 	    %wxWindow:update(wxWindow:getParent(ListCtrl)),
-	    loop(Frame, {[{Pid,NewTime} | NewState],NewTime, NewPingTimeStamp},ListCtrl);
+	    loop(Frame, {[{Pid,NewTime} | NewState], NewPingTimeStamp},ListCtrl);
 
 	% A client responds to a ping (refresh the client status) 
 	{pong, Pid} -> 
@@ -143,21 +142,21 @@ loop(Frame, {State,TimeStamp,PingTimeStamp}, ListCtrl) ->
 		   end,
 	    State_ = lists:keydelete(Pid,1,NewState),
 	    
-	    loop(Frame, {[Pid_| State_], NewTime, NewPingTimeStamp},ListCtrl); 
+	    loop(Frame, {[Pid_| State_], NewPingTimeStamp},ListCtrl); 
        
 	{status, Str} -> 
 	    wxFrame:setStatusText(Frame,Str),
-	    loop(Frame, {NewState,NewTime,NewPingTimeStamp},ListCtrl);
+	    loop(Frame, {NewState, NewPingTimeStamp},ListCtrl);
 	
 	% Matches any message 
 	Msg ->
 	    io:format("Got ~p ~n", [Msg]),
-	    loop(Frame,{NewState,NewTime,NewPingTimeStamp},ListCtrl)
+	    loop(Frame,{NewState, NewPingTimeStamp},ListCtrl)
 
     % If no message go back through loop after specified time (?) 
     after 100 ->
 	    wxFrame:setStatusText(Frame,"IDLE"),
-	    loop(Frame,{NewState,NewTime,NewPingTimeStamp},ListCtrl)
+	    loop(Frame,{NewState, NewPingTimeStamp},ListCtrl)
 	     
     end.
 
